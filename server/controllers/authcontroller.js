@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// --- Validation helpers ---
+
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const isValidUsername = (username) => /^[a-zA-Z0-9_]{3,20}$/.test(username);
@@ -83,8 +83,16 @@ const signup = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(e => e.message);
+            return res.status(400).json({ message: messages[0] });
+        }
+        if (error.code === 11000) {
+            return res.status(409).json({ message: 'Email or username already exists' });
+        }
+        res.status(500).json({ message: 'Server error' });
+    }
+        
 };
 
 const login = async (req, res) => {
@@ -128,8 +136,57 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports = { signup, login };
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    // 1. Required fields
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Old password and new password are required' });
+    }
+
+    // 2. Validate new password strength
+    if (!isValidPassword(newPassword)) {
+      return res.status(400).json({
+        message: 'New password must be at least 8 characters and contain at least one letter and one number'
+      });
+    }
+
+    // 3. Prevent reusing the same password
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ message: 'New password must be different from old password' });
+    }
+
+    // 4. Fetch user WITH passwordHash (req.user from middleware excludes it)
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // 5. Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Old password is incorrect' });
+    }
+
+    // 6. Hash and save new password
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ message: messages[0] });
+    }
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { signup, login, changePassword };
+

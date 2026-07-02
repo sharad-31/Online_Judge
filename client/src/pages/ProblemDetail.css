@@ -1,0 +1,69 @@
+.problem-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #2563eb;
+}
+
+.problem-title {
+  margin-top: 16px;
+}
+
+.problem-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.problem-limits {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.statement-section {
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.statement-text {
+  white-space: pre-wrap;
+}
+
+.sample-section {
+  margin-bottom: 16px;
+}
+
+.sample-box {
+  background: #f4f4f4;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.problem-stats {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+.difficulty-Easy {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.difficulty-Medium {
+  color: #eab308;
+  font-weight: bold;
+}
+
+.difficulty-Hard {
+  color: #ef4444;
+  font-weight: bold;
+}

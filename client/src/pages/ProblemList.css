@@ -1,0 +1,73 @@
+.problem-list-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filters select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status-text {
+  color: #666;
+}
+
+.error-text {
+  color: red;
+}
+
+.problem-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.problem-table thead tr {
+  border-bottom: 2px solid #ddd;
+  text-align: left;
+}
+
+.problem-table th {
+  padding: 10px;
+}
+
+.problem-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+.problem-table td {
+  padding: 10px;
+}
+
+.problem-link {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.problem-link:hover {
+  text-decoration: underline;
+}
+
+.difficulty-Easy {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.difficulty-Medium {
+  color: #eab308;
+  font-weight: bold;
+}
+
+.difficulty-Hard {
+  color: #ef4444;
+  font-weight: bold;
+}
