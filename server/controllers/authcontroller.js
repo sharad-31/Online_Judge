@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt.js');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User.js');
+const User = require('../models/User');
 
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

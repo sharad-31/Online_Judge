@@ -1,6 +1,6 @@
 const Question = require('../models/Question');
 const TestCase = require('../models/TestCase');
-
+const mongoose = require('mongoose');
 // GET /questions  (with optional ?difficulty= & ?topic= filters)
 const getAllQuestions = async (req, res) => {
   try {
