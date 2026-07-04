@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt.js');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User.js');
 
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -188,5 +188,14 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, changePassword };
+const getMe = async (req, res) => {
+    try {
+        res.status(200).json({ user: req.user });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+module.exports = { signup, login, changePassword, getMe };
 
