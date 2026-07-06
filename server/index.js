@@ -5,6 +5,7 @@ const cors= require('cors');
 const authRoutes = require('./routes/authRoutes');
 
 const questionRoutes = require('./routes/questionRoutes');
+const submissionRoutes = require('./routes/submissionRoutes');
 
 connectDB();
 
@@ -13,7 +14,7 @@ app.use(cors({ origin: 'http://localhost:5173'}));
 app.use(express.json());
 
 app.use('/api/v1/auth', authRoutes);
-
+app.use('/api/v1/submissions', submissionRoutes);
 app.use('/api/v1/questions', questionRoutes);
 
 app.get('/health', (req, res) => {
