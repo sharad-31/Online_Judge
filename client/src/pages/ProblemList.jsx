@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import './ProblemList.css';
+import { Circle } from 'lucide-react';
+
+
 
 function ProblemList() {
+  const navigate = useNavigate()  
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [topic, setTopic] = useState('');
+
 
   useEffect(() => {
     fetchQuestions();
@@ -31,6 +36,17 @@ function ProblemList() {
       setLoading(false);
     }
   };
+
+
+const handleProblemClick = (id) => {
+    const token = localStorage.getItem('token')
+    
+    if (token) {
+        navigate(`/problems/${id}`)  
+    } else {
+        navigate('/login')           
+    }
+}
 
   return (
     <div className="problem-list-container">
@@ -85,13 +101,16 @@ function ProblemList() {
           <tbody>
             {questions.map((q) => (
               <tr key={q._id}>
-                <td>
-                  <Link to={`/problems/${q._id}`} className="problem-link">
+              
+                <td onClick={() => handleProblemClick(q._id)} 
+                    style={{ cursor: 'pointer' }}>
                     {q.title}
-                  </Link>
                 </td>
                 <td>{q.topic}</td>
-                <td className={`difficulty-${q.difficulty}`}>{q.difficulty}</td>
+                <td className={`difficulty-${q.difficulty}`}>
+                  <Circle size={8} fill="currentColor" style={{ marginRight: '6px', display: 'inline' }} />
+                  {q.difficulty}
+                </td>
               </tr>
             ))}
           </tbody>

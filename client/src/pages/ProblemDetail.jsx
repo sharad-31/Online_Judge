@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
+import CodeEditorSection from '../components/CodeEditorSection';
 import './ProblemDetail.css';
 
 function ProblemDetail() {
@@ -8,6 +9,7 @@ function ProblemDetail() {
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const editorRef = useRef(null);
 
   useEffect(() => {
     fetchQuestion();
@@ -30,13 +32,17 @@ function ProblemDetail() {
     }
   };
 
+  const scrollToEditor = () => {
+    editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (loading) return <p className="problem-detail-container">Loading problem...</p>;
   if (error) return <p className="problem-detail-container error-text">{error}</p>;
   if (!question) return null;
 
   return (
-    <div className="problem-detail-container">
-      <Link to="/" className="back-link">← Back to Problems</Link>
+    <div className="problem-detail-container fade-in">
+      <Link to="/problems" className="back-link">← Back to Problems</Link>
 
       <h1 className="problem-title">{question.title}</h1>
 
@@ -70,9 +76,17 @@ function ProblemDetail() {
         {' | '}
         <span>Accepted: {question.acceptedSubmissions}</span>
       </div>
+
+      <button className="btn" style={{ marginTop: '16px' }} onClick={scrollToEditor}>
+        Solve this problem
+      </button>
+
+      <div ref={editorRef} className="editor-section">
+        <h3>Write your solution</h3>
+        <CodeEditorSection questionId={id} />
+      </div>
     </div>
   );
 }
 
 export default ProblemDetail;
-

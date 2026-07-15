@@ -1,0 +1,45 @@
+.leaderboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.leaderboard-container h1 {
+  margin-bottom: 24px;
+  color: #f1f5f9;
+}
+
+.view-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.view-link:hover {
+  text-decoration: underline;
+}
+
+/* Table styling */
+.problem-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.problem-table th,
+.problem-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+  color: #f1f5f9;
+}
+
+.problem-table th {
+  background-color: #1e293b;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.problem-table tbody tr:hover {
+  background-color: #1e293b;
+}

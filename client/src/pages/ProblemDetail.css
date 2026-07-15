@@ -1,7 +1,7 @@
 .problem-detail-container {
-  max-width: 800px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 40px;
 }
 
 .back-link {
@@ -24,7 +24,7 @@
   gap: 16px;
   margin-bottom: 20px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .statement-section {
@@ -41,7 +41,9 @@
 }
 
 .sample-box {
-  background: #f4f4f4;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
   padding: 12px;
   border-radius: 6px;
   overflow-x: auto;
@@ -50,7 +52,7 @@
 .problem-stats {
   margin-top: 24px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .difficulty-Easy {
@@ -66,4 +68,13 @@
 .difficulty-Hard {
   color: #ef4444;
   font-weight: bold;
+}
+
+.editor-section {
+  margin-top: 40px;
+  scroll-margin-top: 24px;
+}
+
+.editor-section h3 {
+  margin-bottom: 16px;
 }

@@ -47,8 +47,8 @@ const executeCode = (language, code, input, timeLimit) => {
                 run: `/code/solution`
             },
             'java': {
-                compile: `javac /code/${fileName}`,
-                run: `java -cp /code solution_${fileId}`
+                compile: null,              
+                run: `java /code/${fileName}`  
             }
         };
 
@@ -111,10 +111,25 @@ const submitCode = async (req, res) => {
             return res.status(400).json({ message: 'Unsupported language' });
         }
 
-        // 2. Question fetch karo
+// 2. Question fetch karo
         const question = await Question.findById(questionId); 
         if (!question) {
             return res.status(404).json({ message: 'Question not found' });
+        }
+
+        // 2.5 Cooldown check — same user ka last submission 30 sec se purana hona chahiye
+        const COOLDOWN_SECONDS = 30;
+        const lastSubmission = await Submission.findOne({ userId })
+            .sort({ createdAt: -1 });
+
+        if (lastSubmission) {
+            const secondsSinceLast = (Date.now() - lastSubmission.createdAt.getTime()) / 1000;
+            if (secondsSinceLast < COOLDOWN_SECONDS) {
+                const waitTime = Math.ceil(COOLDOWN_SECONDS - secondsSinceLast);
+                return res.status(429).json({
+                    message: `Please wait ${waitTime} more second(s) before submitting again`
+                });
+            }
         }
 
         // 3. Submission banao — PENDING
@@ -222,7 +237,9 @@ const getUserSubmissions = async (req, res) => {
     try {
         const submissions = await Submission.find({ 
             userId: req.params.userId 
-        }).sort({ createdAt: -1 });
+        })
+        .populate('questionId', 'title')
+        .sort({ createdAt: -1 });
         res.status(200).json({ submissions });
     } catch (error) {
         res.status(500).json({ message: error.message });

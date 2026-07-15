@@ -1,0 +1,48 @@
+.submit-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.submit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.lang-select {
+  width: 160px;
+}
+
+.editor-wrapper {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.result-card {
+  margin-top: 20px;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.result-meta {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.result-message {
+  margin-top: 12px;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  overflow-x: auto;
+}

@@ -1,13 +1,73 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import axiosInstance from './api/axiosInstance'
+import Home from './pages/Home'
 import ProblemList from './pages/ProblemList'
 import ProblemDetail from './pages/ProblemDetail'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import SubmissionDetail from './pages/SubmissionDetail';
+
+import Leaderboard from './pages/Leaderboard';
+import SubmissionHistory from './pages/SubmissionHistory';
+import Navbar from './components/Navbar';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      axiosInstance.get('/auth/me')
+        .then(res => setUser(res.data.user))
+        .catch(() => {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setUser(null)
+        })
+        .finally(() => setLoading(false))
+    } else {
+      setLoading(false)
+    }
+  }, [])
+
+  if (loading) return <p style={{ textAlign: 'center', marginTop: '2rem' }}>Loading...</p>
+
   return (
     <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#171a23',
+            color: '#e6e8ec',
+            border: '1px solid #2a2f3d',
+            fontSize: '14px'
+          },
+          success: { iconTheme: { primary: '#22c55e', secondary: '#171a23' } },
+          error: { iconTheme: { primary: '#ef4444', secondary: '#171a23' } }
+        }}
+      />
+      <Navbar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/" element={<ProblemList />} />
-        <Route path="/problems/:id" element={<ProblemDetail />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/problems" element={<ProblemList />} />
+        <Route path="/problems/:id" element={
+          user ? <ProblemDetail user={user} /> : <Navigate to="/login" />
+        } />
+        <Route path="/login" element={
+          user ? <Navigate to="/" /> : <Login setUser={setUser} />
+        } />
+        <Route path="/signup" element={
+          user ? <Navigate to="/" /> : <Signup />
+        } />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/submissions" element={<SubmissionHistory />} />
+        <Route path="/submissions/:id" element={
+            user ? <SubmissionDetail /> : <Navigate to="/login" />
+        } />
       </Routes>
     </BrowserRouter>
   )
