@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema({
   ranking: {
     type: Number,
     default: 0,
-    min: 0
+    min: 0,
+    index: true
   },
   questionsSolved: {
     type: Number,

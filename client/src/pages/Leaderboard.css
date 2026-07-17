@@ -43,3 +43,7 @@
 .problem-table tbody tr:hover {
   background-color: #1e293b;
 }
+
+.medal {
+  font-size: 20px;
+}

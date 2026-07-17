@@ -7,6 +7,7 @@ import ProblemDetail from './pages/ProblemDetail'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import SubmissionDetail from './pages/SubmissionDetail';
+import Profile from './pages/Profile';
 
 import Leaderboard from './pages/Leaderboard';
 import SubmissionHistory from './pages/SubmissionHistory';
@@ -17,6 +18,20 @@ function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.querySelectorAll('.card').forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+          card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        }
+      });
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+  
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -55,7 +70,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/problems" element={<ProblemList />} />
         <Route path="/problems/:id" element={
-          user ? <ProblemDetail user={user} /> : <Navigate to="/login" />
+          user ? <ProblemDetail user={user} /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
         } />
         <Route path="/login" element={
           user ? <Navigate to="/" /> : <Login setUser={setUser} />
@@ -66,7 +81,10 @@ function App() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/submissions" element={<SubmissionHistory />} />
         <Route path="/submissions/:id" element={
-            user ? <SubmissionDetail /> : <Navigate to="/login" />
+            user ? <SubmissionDetail /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
+        } />
+        <Route path="/profile" element={
+            user ? <Profile /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
         } />
       </Routes>
     </BrowserRouter>

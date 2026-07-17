@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axiosInstance from '../api/axiosInstance'
+import './Profile.css'
 
 function Profile() {
   const [user, setUser] = useState(null)
@@ -25,12 +26,18 @@ function Profile() {
       fetchProfile()
   }, [])
 
+  if (loading) return <p className="profile-container">Loading profile...</p>;
+  if (!user || !stats) return <p className="profile-container error-text">Failed to load profile.</p>;
+
   return (
       <div className="profile-container">
           {/* User Info Card */}
           <div className="profile-card">
+              <div className="profile-avatar">
+                  {(user.name?.[0] || user.username?.[0] || '?').toUpperCase()}
+              </div>
               <h2>{user.name}</h2>
-              <p>@{user.username}</p>
+              <p className="profile-username">@{user.username}</p>
               <p>{user.email}</p>
           </div>
 

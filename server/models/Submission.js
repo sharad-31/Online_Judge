@@ -4,12 +4,12 @@ const submissionSchema = new mongoose.Schema({
     userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', 
-       
+        index: true,
     },
     questionId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Question',
-        
+        index: true,
     },
     language:{
         type: String,

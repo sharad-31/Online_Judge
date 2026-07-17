@@ -31,7 +31,11 @@ function Leaderboard() {
           <tbody>
             {users.map((u, index) => (
               <tr key={u._id}>
-                <td>#{index + 1}</td>
+                <td>
+                  <span className={index < 3 ? `medal medal-${index + 1}` : ''}>
+                    {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                  </span>
+                </td>
                 <td>{u.username}</td>
                 <td>{u.questionsSolved}</td>
                 <td>{u.ranking}</td>

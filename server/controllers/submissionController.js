@@ -72,7 +72,10 @@ const executeCode = (language, code, input, timeLimit) => {
             : `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "timeout ${timeLimit} ${cmd.run} < /code/input.txt"`;      
         console.log('DOCKER CMD:', dockerCmd);
 
+        const startedAt = Date.now();
+
         exec(dockerCmd, { timeout: (timeLimit + 2) * 1000 }, (error, stdout, stderr) => {
+            const executionTime = Date.now() - startedAt;
             // temp file delete karo — hamesha
           try { fs.unlinkSync(filePath); } catch (e) {}
             try { fs.unlinkSync(inputFilePath); } catch (e) {}
@@ -81,16 +84,19 @@ const executeCode = (language, code, input, timeLimit) => {
             console.log('ERROR:', error?.message);
 
             if (error) {
-                if (error.killed) {
-                    return resolve({ verdict: 'TLE', output: '' });
+                // error.killed = Node's own exec() timeout fired.
+                // error.code === 124 = the shell's `timeout <n>` command fired first (standard POSIX convention).
+                // Both mean the same thing: the program ran past the time limit.
+                if (error.killed || error.code === 124) {
+                    return resolve({ verdict: 'TLE', output: '', executionTime });
                 }
                 if (stderr) {
-                    return resolve({ verdict: 'CE', output: stderr });
+                    return resolve({ verdict: 'CE', output: stderr, executionTime });
                 }
-                return resolve({ verdict: 'RE', output: error.message });
+                return resolve({ verdict: 'RE', output: error.message, executionTime });
             }
 
-            resolve({ verdict: 'OK', output: stdout.trim() });
+            resolve({ verdict: 'OK', output: stdout.trim(), executionTime });
         });
     });
 };
@@ -132,18 +138,8 @@ const submitCode = async (req, res) => {
             }
         }
 
-        // 3. Submission banao — PENDING
-        const submission = new Submission({
-            userId,
-            questionId,
-            language: normalizedLanguage,
-            code,
-            codingTime,
-            verdict: 'PENDING'
-        });
-        await submission.save();
-
-        // 4. Test cases fetch karo
+        // 3. Test cases fetch karo — check BEFORE saving the submission so we
+        //    never leave a permanently PENDING record if none exist
         const testCases = await TestCase.find({ 
             questionId: questionId,
             hidden: true
@@ -154,6 +150,17 @@ const submitCode = async (req, res) => {
         if (testCases.length === 0) {
             return res.status(404).json({ message: 'No test cases found' });
         }
+
+        // 4. Submission banao — PENDING
+        const submission = new Submission({
+            userId,
+            questionId,
+            language: normalizedLanguage,
+            code,
+            codingTime,
+            verdict: 'PENDING'
+        });
+        await submission.save();
 
         console.log('STARTING EXECUTION...');
 
@@ -227,14 +234,25 @@ const getSubmissionById = async (req, res) => {
         if (!submission) {
             return res.status(404).json({ message: 'Submission not found' });
         }
+        // Only the submission's owner (or an admin) may view it
+        if (submission.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. You can only view your own submissions.' });
+        }
         res.status(200).json({ submission });
     } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid submission ID' });
+        }
         res.status(500).json({ message: error.message });
     }
 };
 
 const getUserSubmissions = async (req, res) => {
     try {
+        // Only the user themself (or an admin) may list this history
+        if (req.params.userId !== req.user._id.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. You can only view your own submissions.' });
+        }
         const submissions = await Submission.find({ 
             userId: req.params.userId 
         })

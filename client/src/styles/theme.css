@@ -89,25 +89,70 @@ body {
   padding: 11px 22px;
   border-radius: var(--radius-sm);
   border: none;
-  background: linear-gradient(135deg, var(--primary), #818cf8);
+  background: none;
   color: white;
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: transform 0.1s, box-shadow 0.15s;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+   overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s;
 }
 
-.btn:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.35); }
-.btn:active:not(:disabled) { transform: scale(0.97); }
-.btn:disabled { background: var(--border); cursor: not-allowed; box-shadow: none; }
+.btn:hover::after {
+  left: 125%;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary), #818cf8);
+  transform: scale(var(--btn-scale-x, 1), var(--btn-scale-y, 1));
+  transition: transform 0.2s, box-shadow 0.15s;
+  z-index: -1;
+}
+
+.btn:hover::before {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+.btn:active:not(:disabled) {
+  --btn-scale-x: 0.97;
+  --btn-scale-y: 0.94;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 .btn-outline {
   background: transparent;
-  border: 1px solid var(--border);
   color: var(--text);
 }
 
-.btn-outline:hover { background: var(--surface-hover); box-shadow: none; }
+.btn-outline::before {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.btn-outline:hover::before {
+  background: var(--surface-hover);
+  box-shadow: none;
+}
 
 .input, .select, .textarea {
   width: 100%;
@@ -150,4 +195,125 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+/* Aurora flowing background — subtle, low-opacity, GPU-friendly */
+body {
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 600px 400px at 15% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(ellipse 500px 400px at 90% 20%, rgba(129, 140, 248, 0.12), transparent 60%),
+    radial-gradient(ellipse 500px 500px at 50% 110%, rgba(99, 102, 241, 0.10), transparent 60%);
+  animation: auroraDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes auroraDrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-20px, 15px, 0) scale(1.05); }
+}
+
+/* Motion.csv "Standard Hover" spec applied to all .card elements */
+.card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(99, 102, 241, 0.15),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(99, 102, 241, 0.5) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s;
+  animation: borderGlow 3s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+/* Subtle glow on AC verdict badge only — restrained, not neon-overload */
+.badge-AC {
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+/* Glassmorphic navbar upgrade */
+.navbar {
+  background: rgba(23, 26, 35, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+.nav-active {
+  color: var(--text) !important;
+  position: relative;
+}
+
+.nav-active::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--primary);
+  border-radius: 2px;
 }

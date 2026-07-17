@@ -29,17 +29,17 @@ function Home() {
         transition={{ duration: 0.4, delay: 0.15 }}
       >
         <div className="card stat-card">
-          <Code2 size={26} className="stat-icon" />
+          <div className="stat-icon-badge"><Code2 size={20} className="stat-icon" /></div>
           <span className="stat-number">70+</span>
           <span className="stat-label">Problems</span>
         </div>
         <div className="card stat-card">
-          <Layers size={26} className="stat-icon" />
+          <div className="stat-icon-badge"><Layers size={20} className="stat-icon" /></div>
           <span className="stat-number">4</span>
           <span className="stat-label">Languages Supported</span>
         </div>
         <div className="card stat-card">
-          <Users size={26} className="stat-icon" />
+          <div className="stat-icon-badge"><Users size={20} className="stat-icon" /></div>
           <span className="stat-number">20</span>
           <span className="stat-label">Topics Covered</span>
         </div>

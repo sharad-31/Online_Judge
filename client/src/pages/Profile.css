@@ -1,0 +1,87 @@
+.profile-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), #818cf8);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.profile-card h2 {
+  color: var(--text);
+  font-size: 22px;
+  margin: 0;
+}
+
+.profile-card p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.profile-card .profile-username {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.stats-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.stats-card > div {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stats-card > div:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.stats-card h3 {
+  color: var(--primary);
+  font-size: 28px;
+  margin: 0 0 4px;
+}
+
+.stats-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.error-text {
+  color: var(--danger);
+}

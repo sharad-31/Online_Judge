@@ -40,7 +40,19 @@
 }
 
 .problem-table tbody tr {
-  border-bottom: 1px solid #eee;
+  animation: rowFadeIn 0.35s cubic-bezier(0.11, 0, 0.5, 0) backwards;
+}
+
+.problem-table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+.problem-table tbody tr:nth-child(2) { animation-delay: 0.05s; }
+.problem-table tbody tr:nth-child(3) { animation-delay: 0.08s; }
+.problem-table tbody tr:nth-child(4) { animation-delay: 0.11s; }
+.problem-table tbody tr:nth-child(5) { animation-delay: 0.14s; }
+.problem-table tbody tr:nth-child(n+6) { animation-delay: 0.16s; }
+
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .problem-table td {
