@@ -189,12 +189,13 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  color: #121417;
-  background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fcf6ba, #aa771c);
+  color: white;                    /* ← white text */
+  background: #2563eb;            /* ← blue */
   transition: 0.3s;
 }
 
 .lamp-login-btn:hover:not(:disabled) {
+  background: #1d4ed8;            /* ← darker blue on hover */
   transform: scale(1.02);
 }
 

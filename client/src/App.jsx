@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import axiosInstance from './api/axiosInstance'
 import Home from './pages/Home'
 import ProblemList from './pages/ProblemList'
@@ -8,11 +8,18 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import SubmissionDetail from './pages/SubmissionDetail';
 import Profile from './pages/Profile';
-
 import Leaderboard from './pages/Leaderboard';
 import SubmissionHistory from './pages/SubmissionHistory';
 import Navbar from './components/Navbar';
 import { Toaster } from 'react-hot-toast';
+
+// ← Alag component — useLocation BrowserRouter ke andar chahiye
+function NavbarWrapper({ user, setUser }) {
+  const location = useLocation()
+  const hideNavbar = location.pathname.startsWith('/problems/')
+  if (hideNavbar) return null
+  return <Navbar user={user} setUser={setUser} />
+}
 
 function App() {
   const [user, setUser] = useState(null)
@@ -65,7 +72,8 @@ function App() {
           error: { iconTheme: { primary: '#ef4444', secondary: '#171a23' } }
         }}
       />
-      <Navbar user={user} setUser={setUser} />
+      {/* ← Navbar replace kiya NavbarWrapper se */}
+      <NavbarWrapper user={user} setUser={setUser} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/problems" element={<ProblemList />} />

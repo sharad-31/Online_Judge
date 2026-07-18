@@ -13,11 +13,12 @@ function ProblemList() {
   const [error, setError] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [topic, setTopic] = useState('');
+  const [search, setSearch] = useState('')
 
 
   useEffect(() => {
     fetchQuestions();
-  }, [difficulty, topic]);
+  }, [difficulty, topic, search]);
 
   const fetchQuestions = async () => {
     try {
@@ -27,6 +28,7 @@ function ProblemList() {
       const params = {};
       if (difficulty) params.difficulty = difficulty;
       if (topic) params.topic = topic;
+      if (search) params.search = search;
 
       const response = await axiosInstance.get('/questions', { params });
       setQuestions(response.data.questions);
@@ -53,6 +55,13 @@ const handleProblemClick = (id) => {
       <h1>Problems</h1>
 
       <div className="filters">
+        <input
+          type="text"
+          className="search-input"
+          placeholder=" Search problems..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
           <option value="">All Difficulties</option>
           <option value="Easy">Easy</option>

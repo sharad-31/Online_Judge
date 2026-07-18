@@ -69,17 +69,21 @@
   text-decoration: underline;
 }
 
-.difficulty-Easy {
-  color: #22c55e;
-  font-weight: bold;
+.difficulty-Easy   { color: #22c55e !important; font-weight: bold; }
+.difficulty-Medium { color: #eab308 !important; font-weight: bold; }
+.difficulty-Hard   { color: #ef4444 !important; font-weight: bold; }
+
+.search-input {
+  padding: 8px 14px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 14px;
+  min-width: 240px;
 }
 
-.difficulty-Medium {
-  color: #eab308;
-  font-weight: bold;
-}
-
-.difficulty-Hard {
-  color: #ef4444;
-  font-weight: bold;
+.search-input:focus {
+  outline: none;
+  border-color: #2563eb;
 }
