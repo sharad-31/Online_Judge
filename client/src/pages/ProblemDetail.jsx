@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import CodeEditorSection from '../components/CodeEditorSection';
+import CodeEditorSection from '../Components/CodeEditorSection';
 import './ProblemDetail.css';
 
 function ProblemDetail() {

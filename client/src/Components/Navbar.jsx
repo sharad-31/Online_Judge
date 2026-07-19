@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Code2, Trophy, ListChecks, LogOut, LogIn, User, Menu, X, Sun, Moon } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
+import { Code2, Trophy, ListChecks, LogOut, LogIn, Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.jsx';
 import './Navbar.css';
 
@@ -12,6 +13,32 @@ function Navbar({ user, setUser }) {
   const token = localStorage.getItem('token');
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const controls = useAnimation();
+  const lastY = useRef(0);
+
+  // Smart navbar: slides up out of view on scroll-down, slides back in on
+  // scroll-up. Stays pinned near the very top so it doesn't flicker on tiny
+  // scroll jitters, and always reappears while the mobile menu is open.
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY;
+      if (menuOpen) {
+        controls.start({ y: 0, opacity: 1 });
+        lastY.current = y;
+        return;
+      }
+      if (y < 80) {
+        controls.start({ y: 0, opacity: 1 });
+      } else if (y > lastY.current + 4) {
+        controls.start({ y: '-100%', opacity: 0.4 });
+      } else if (y < lastY.current - 4) {
+        controls.start({ y: 0, opacity: 1 });
+      }
+      lastY.current = y;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [controls, menuOpen]);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -26,7 +53,12 @@ function Navbar({ user, setUser }) {
   const initial = user?.name?.trim()?.[0]?.toUpperCase() || user?.username?.[0]?.toUpperCase() || '?';
 
   return (
-    <nav className="navbar">
+    <motion.nav
+      className="navbar"
+      initial={{ y: 0, opacity: 1 }}
+      animate={controls}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+    >
       <Link to="/" className="navbar-brand" onClick={closeMenu}>
         <Code2 size={22} />
         OJ Platform
@@ -88,7 +120,7 @@ function Navbar({ user, setUser }) {
           </NavLink>
         )}
       </div>
-    </nav>
+    </motion.nav>
   );
 }
 

@@ -11,7 +11,8 @@ import Profile from './pages/Profile';
 
 import Leaderboard from './pages/Leaderboard';
 import SubmissionHistory from './pages/SubmissionHistory';
-import Navbar from './components/Navbar';
+import Navbar from './Components/Navbar';
+import Footer from './Components/Footer';
 import { Toaster } from 'react-hot-toast';
 
 function AppRoutes({ user, setUser }) {
@@ -23,7 +24,7 @@ function AppRoutes({ user, setUser }) {
       <div key={location.pathname} className="page-transition">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/problems" element={<ProblemList />} />
+          <Route path="/problems" element={<ProblemList user={user} />} />
           <Route path="/problems/:id" element={
             user ? <ProblemDetail user={user} /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
           } />
@@ -43,6 +44,7 @@ function AppRoutes({ user, setUser }) {
           } />
         </Routes>
       </div>
+      <Footer />
     </>
   );
 }

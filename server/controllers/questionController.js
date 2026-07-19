@@ -15,8 +15,8 @@ const getAllQuestions = async (req, res) => {
       filter.topic = topic;
     }
 
-    // Only send title, topic, difficulty for the list view (per HLD 7.2)
-    const questions = await Question.find(filter).select('title topic difficulty');
+    // Send title, topic, difficulty plus lightweight acceptance-rate fields for the list view
+    const questions = await Question.find(filter).select('title topic difficulty totalSubmissions acceptedSubmissions');
 
     res.status(200).json({
       count: questions.length,
