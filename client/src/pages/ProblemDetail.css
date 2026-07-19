@@ -1,43 +1,22 @@
-/* ── Layout ── */
-.problem-detail-page {
-  display: flex;
-  height: calc(100vh - 60px);
-  overflow: hidden;
+.problem-detail-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 40px;
 }
 
-.problem-left-panel {
-  width: 45%;
-  padding: 24px 28px;
-  overflow-y: auto;
-  border-right: 1px solid #334155;
-}
-
-.problem-right-panel {
-  width: 55%;
-  padding: 16px;
-  overflow-y: auto;
-  background: #0f172a;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── Problem Info ── */
 .back-link {
   text-decoration: none;
-  color: #2563eb;
-  font-size: 14px;
+  color: var(--primary);
 }
 
 .problem-title {
   margin-top: 16px;
-  font-size: 1.6rem;
 }
 
 .problem-meta {
   display: flex;
   gap: 12px;
   margin-bottom: 20px;
-  align-items: center;
 }
 
 .problem-limits {
@@ -76,68 +55,26 @@
   color: var(--text-muted);
 }
 
-/* ── Difficulty Colors ── */
-.difficulty-Easy   { color: #22c55e; font-weight: bold; }
-.difficulty-Medium { color: #eab308; font-weight: bold; }
-.difficulty-Hard   { color: #ef4444; font-weight: bold; }
-
-
-.problem-detail-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+.difficulty-Easy {
+  color: var(--success);
+  font-weight: bold;
 }
 
-.problem-mini-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background: #0f172a;
-  border-bottom: 1px solid #334155;
-  flex-shrink: 0;
+.difficulty-Medium {
+  color: var(--warning);
+  font-weight: bold;
 }
 
-.mini-nav-back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  color: #94a3b8;
-  font-size: 14px;
+.difficulty-Hard {
+  color: var(--danger);
+  font-weight: bold;
 }
 
-.mini-nav-back:hover { color: #f1f5f9; }
-
-.mini-nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #f1f5f9;
-  font-weight: 600;
+.editor-section {
+  margin-top: 40px;
+  scroll-margin-top: 24px;
 }
 
-.mini-nav-logout {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: 1px solid #334155;
-  color: #94a3b8;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.mini-nav-logout:hover {
-  color: #ef4444;
-  border-color: #ef4444;
-}
-
-/* Height fix — navbar ke baad */
-.problem-detail-page {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
+.editor-section h3 {
+  margin-bottom: 16px;
 }

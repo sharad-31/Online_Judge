@@ -12,56 +12,54 @@
 
 .filters select {
   padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
   font-size: 14px;
 }
 
 .status-text {
-  color: #666;
+  color: var(--text-muted);
 }
 
-.error-text {
-  color: red;
-}
-
-.problem-table {
+.problem-list-container .problem-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.problem-table thead tr {
-  border-bottom: 2px solid #ddd;
+.problem-list-container .problem-table thead tr {
+  border-bottom: 2px solid var(--border);
   text-align: left;
 }
 
-.problem-table th {
+.problem-list-container .problem-table th {
   padding: 10px;
 }
 
-.problem-table tbody tr {
+.problem-list-container .problem-table tbody tr {
   animation: rowFadeIn 0.35s cubic-bezier(0.11, 0, 0.5, 0) backwards;
 }
 
-.problem-table tbody tr:nth-child(1) { animation-delay: 0.02s; }
-.problem-table tbody tr:nth-child(2) { animation-delay: 0.05s; }
-.problem-table tbody tr:nth-child(3) { animation-delay: 0.08s; }
-.problem-table tbody tr:nth-child(4) { animation-delay: 0.11s; }
-.problem-table tbody tr:nth-child(5) { animation-delay: 0.14s; }
-.problem-table tbody tr:nth-child(n+6) { animation-delay: 0.16s; }
+.problem-list-container .problem-table tbody tr:nth-child(1) { animation-delay: 0.02s; }
+.problem-list-container .problem-table tbody tr:nth-child(2) { animation-delay: 0.05s; }
+.problem-list-container .problem-table tbody tr:nth-child(3) { animation-delay: 0.08s; }
+.problem-list-container .problem-table tbody tr:nth-child(4) { animation-delay: 0.11s; }
+.problem-list-container .problem-table tbody tr:nth-child(5) { animation-delay: 0.14s; }
+.problem-list-container .problem-table tbody tr:nth-child(n+6) { animation-delay: 0.16s; }
 
 @keyframes rowFadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.problem-table td {
+.problem-list-container .problem-table td {
   padding: 10px;
 }
 
 .problem-link {
   text-decoration: none;
-  color: #2563eb;
+  color: var(--primary);
   font-weight: 500;
 }
 
@@ -69,21 +67,17 @@
   text-decoration: underline;
 }
 
-.difficulty-Easy   { color: #22c55e !important; font-weight: bold; }
-.difficulty-Medium { color: #eab308 !important; font-weight: bold; }
-.difficulty-Hard   { color: #ef4444 !important; font-weight: bold; }
-
-.search-input {
-  padding: 8px 14px;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  background: #0f172a;
-  color: #f1f5f9;
-  font-size: 14px;
-  min-width: 240px;
+.difficulty-Easy {
+  color: var(--success);
+  font-weight: bold;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: #2563eb;
+.difficulty-Medium {
+  color: var(--warning);
+  font-weight: bold;
+}
+
+.difficulty-Hard {
+  color: var(--danger);
+  font-weight: bold;
 }

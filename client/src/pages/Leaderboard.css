@@ -4,11 +4,6 @@
   padding: 24px;
 }
 
-.leaderboard-container h1 {
-  margin-bottom: 24px;
-  color: #f1f5f9;
-}
-
 .view-link {
   color: var(--primary);
   text-decoration: none;
@@ -20,28 +15,29 @@
   text-decoration: underline;
 }
 
-/* Table styling */
-.problem-table {
+/* Table styling — scoped to this page's container so it can't
+   collide with ProblemList's .problem-table rules */
+.leaderboard-container .problem-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.problem-table th,
-.problem-table td {
+.leaderboard-container .problem-table th,
+.leaderboard-container .problem-table td {
   padding: 12px 16px;
   text-align: left;
-  border-bottom: 1px solid #334155;
-  color: #f1f5f9;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
 
-.problem-table th {
-  background-color: #1e293b;
+.leaderboard-container .problem-table th {
+  background-color: var(--surface);
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
-.problem-table tbody tr:hover {
-  background-color: #1e293b;
+.leaderboard-container .problem-table tbody tr:hover {
+  background-color: var(--surface-hover);
 }
 
 .medal {

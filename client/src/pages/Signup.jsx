@@ -63,56 +63,75 @@ function Signup() {
   }
 
   return (
-    <div className="login-wrapper">
-      <form className="card login-card" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
-        <p className="login-subtitle">Join and start solving problems</p>
-
-        {error && <p className="error-text">{error}</p>}
-
-        <label>Full Name</label>
-        <input className="input" type="text" value={name}
-          onChange={(e) => setName(e.target.value)} required />
-
-        <label>Username</label>
-        <input className="input" type="text" value={username}
-          onChange={(e) => setUsername(e.target.value)} required />
-
-        <label>Email</label>
-        <input className="input" type="email" value={email}
-          onChange={(e) => setEmail(e.target.value)} required />
-
-        <label>Phone (optional)</label>
-        <input className="input" type="tel" value={phone}
-          onChange={(e) => setPhone(e.target.value)} />
-
-        <label>Password</label>
-        <div className="password-field">
-          <input
-            className="input"
-            type={showPassword ? 'text' : 'password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button
-            type="button"
-            className="password-toggle"
-            onClick={() => setShowPassword(!showPassword)}
-            tabIndex={-1}
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
+    <div className="auth-page signup-bg">
+      <div className="auth-shell">
+        <div className="auth-hero">
+          <h1>Hello!</h1>
+          <p>Already solving problems with us? Log back in and pick up where you left off.</p>
+          <Link to="/login" className="auth-toggle-btn">Login</Link>
         </div>
 
-        <button className="btn" type="submit" disabled={loading}>
-          {loading ? 'Creating account...' : 'Sign Up'}
-        </button>
+        <form className="auth-form-panel" onSubmit={handleSubmit}>
+          <h2>Sign Up Form</h2>
+          <p className="auth-subtitle">Join and start solving problems</p>
 
-        <p className="signup-hint">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </form>
+          {error && <p className="error-text">{error}</p>}
+
+          <div>
+            <label>Full Name</label>
+            <input className="input" type="text" placeholder="Full name" value={name}
+              onChange={(e) => setName(e.target.value)} required />
+          </div>
+
+          <div>
+            <label>Username</label>
+            <input className="input" type="text" placeholder="Username" value={username}
+              onChange={(e) => setUsername(e.target.value)} required />
+          </div>
+
+          <div>
+            <label>Email</label>
+            <input className="input" type="email" placeholder="Email" value={email}
+              onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+
+          <div>
+            <label>Phone (optional)</label>
+            <input className="input" type="tel" placeholder="Phone" value={phone}
+              onChange={(e) => setPhone(e.target.value)} />
+          </div>
+
+          <div>
+            <label>Password</label>
+            <div className="auth-password-field">
+              <input
+                className="input"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="auth-password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button className="btn" type="submit" disabled={loading}>
+            {loading ? 'Creating account...' : 'Sign Up'}
+          </button>
+
+          <p className="auth-hint">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
+        </form>
+      </div>
     </div>
   )
 }

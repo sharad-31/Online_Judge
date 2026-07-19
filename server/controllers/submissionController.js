@@ -201,24 +201,12 @@ const submitCode = async (req, res) => {
         submission.executionTime = totalTime;
         await submission.save();
 
-                // AC hai toh user update karo
+        // AC hai toh user update karo
         if (finalVerdict === 'AC') {
-            const userDoc = await User.findById(userId);
-            const alreadySolved = userDoc.solvedQuestions
-                .map(id => id.toString())
-                .includes(questionId.toString());
-
-            if (!alreadySolved) {
-                await User.findByIdAndUpdate(userId, {
-                    $inc: { questionsSolved: 1, ranking: 10 },
-                    $addToSet: { solvedQuestions: questionId }
-                });
-            } else {
-                await User.findByIdAndUpdate(userId, {
-                    $addToSet: { solvedQuestions: questionId }
-                });
-            }
-
+            await User.findByIdAndUpdate(userId, {
+                $inc: { questionsSolved: 1, ranking: 10 },
+                $addToSet: { solvedQuestions: questionId }
+            });
             await Question.findByIdAndUpdate(questionId, {
                 $inc: { totalSubmissions: 1, acceptedSubmissions: 1 }
             });

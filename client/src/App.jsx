@@ -8,17 +8,43 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import SubmissionDetail from './pages/SubmissionDetail';
 import Profile from './pages/Profile';
+
 import Leaderboard from './pages/Leaderboard';
 import SubmissionHistory from './pages/SubmissionHistory';
 import Navbar from './components/Navbar';
 import { Toaster } from 'react-hot-toast';
 
-// ← Alag component — useLocation BrowserRouter ke andar chahiye
-function NavbarWrapper({ user, setUser }) {
-  const location = useLocation()
-  const hideNavbar = location.pathname.startsWith('/problems/')
-  if (hideNavbar) return null
-  return <Navbar user={user} setUser={setUser} />
+function AppRoutes({ user, setUser }) {
+  const location = useLocation();
+
+  return (
+    <>
+      <Navbar user={user} setUser={setUser} />
+      <div key={location.pathname} className="page-transition">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/problems" element={<ProblemList />} />
+          <Route path="/problems/:id" element={
+            user ? <ProblemDetail user={user} /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
+          } />
+          <Route path="/login" element={
+            user ? <Navigate to="/" /> : <Login setUser={setUser} />
+          } />
+          <Route path="/signup" element={
+            user ? <Navigate to="/" /> : <Signup />
+          } />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/submissions" element={<SubmissionHistory />} />
+          <Route path="/submissions/:id" element={
+              user ? <SubmissionDetail /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
+          } />
+          <Route path="/profile" element={
+              user ? <Profile /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
+          } />
+        </Routes>
+      </div>
+    </>
+  );
 }
 
 function App() {
@@ -72,29 +98,7 @@ function App() {
           error: { iconTheme: { primary: '#ef4444', secondary: '#171a23' } }
         }}
       />
-      {/* ← Navbar replace kiya NavbarWrapper se */}
-      <NavbarWrapper user={user} setUser={setUser} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/problems" element={<ProblemList />} />
-        <Route path="/problems/:id" element={
-          user ? <ProblemDetail user={user} /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
-        } />
-        <Route path="/login" element={
-          user ? <Navigate to="/" /> : <Login setUser={setUser} />
-        } />
-        <Route path="/signup" element={
-          user ? <Navigate to="/" /> : <Signup />
-        } />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/submissions" element={<SubmissionHistory />} />
-        <Route path="/submissions/:id" element={
-            user ? <SubmissionDetail /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
-        } />
-        <Route path="/profile" element={
-            user ? <Profile /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
-        } />
-      </Routes>
+      <AppRoutes user={user} setUser={setUser} />
     </BrowserRouter>
   )
 }

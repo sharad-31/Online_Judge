@@ -4,13 +4,18 @@ const mongoose = require('mongoose');
 // GET /questions  (with optional ?difficulty= & ?topic= filters)
 const getAllQuestions = async (req, res) => {
   try {
-    const { difficulty, topic, search } = req.query;  // ← search add karo
+    const { difficulty, topic } = req.query;
 
+    // Build filter object dynamically
     const filter = {};
-    if (difficulty) filter.difficulty = difficulty;
-    if (topic) filter.topic = topic;
-    if (search) filter.title = { $regex: search, $options: 'i' };
+    if (difficulty) {
+      filter.difficulty = difficulty;
+    }
+    if (topic) {
+      filter.topic = topic;
+    }
 
+    // Only send title, topic, difficulty for the list view (per HLD 7.2)
     const questions = await Question.find(filter).select('title topic difficulty');
 
     res.status(200).json({
