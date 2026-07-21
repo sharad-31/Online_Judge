@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');  // ← bcrypt bhi fix karo — bcrypt.js nahi bcryptjs
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-
+const redis = require('../config/redis');  // ← ye add karo
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -196,6 +196,22 @@ const getMe = async (req, res) => {
     }
 };
 
+const logout = async (req, res) => {
+    try {
+        // Token header se nikalo
+        const token = req.headers['authorization']?.split(' ')[1];
+        
+        if (token) {
+            // Token ko blacklist mein daalo — 24h TTL (token ki expiry tak)
+            await redis.set(`blacklist:${token}`, 1, 'EX', 86400);
+        }
 
-module.exports = { signup, login, changePassword, getMe };
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+module.exports = { signup, login, changePassword, getMe , logout };
 

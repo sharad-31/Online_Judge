@@ -1,23 +1,27 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const redis = require('../config/redis');  // ← add karo
 
 const authMiddleware = async (req, res, next) => {
   try {
-    // 1. Get the Authorization header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'No token provided, authorization denied' });
     }
 
-    // 2. Extract the token
     const token = authHeader.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({ message: 'No token provided, authorization denied' });
     }
 
-    // 3. Verify the token
+    // ← Blacklist check add karo yahan
+    const isBlacklisted = await redis.get(`blacklist:${token}`);
+    if (isBlacklisted) {
+      return res.status(401).json({ message: 'Token invalidated. Please login again.' });
+    }
+
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -28,13 +32,11 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid token' });
     }
 
-    // 4. Confirm the user still exists (handles deleted accounts, etc.)
     const user = await User.findById(decoded.id).select('-passwordHash');
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists' });
     }
 
-    // 5. Attach user to request and proceed
     req.user = user;
     next();
   } catch (error) {

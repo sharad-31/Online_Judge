@@ -10,7 +10,7 @@ const TOPICS = [
   'Math', 'Recursion', 'Two Pointers', 'Sliding Window', 'Heap', 'Trie',
 ];
 
-const LANGUAGES = ['C++', 'Java', 'Python', 'JavaScript'];
+const LANGUAGES = ['C','C++', 'Java', 'Python'];
 
 // Chip labels map to a search keyword rather than a strict topic enum match,
 // so "Binary Search" still surfaces relevant problems even though the

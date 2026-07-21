@@ -32,7 +32,7 @@ function Hero() {
       <div className="oj-hero-textzone">
         <div className="oj-hero-eyebrow">
           <span className="oj-hero-dot" />
-          AI-Powered Coding Platform
+          Code. Judge. Compete.
         </div>
 
         <h1 className="oj-hero-headline">
@@ -41,8 +41,7 @@ function Hero() {
         </h1>
 
         <p className="oj-hero-sub">
-          A cloud-native coding platform with real-time judging, coding contests,
-          leaderboard rankings, and AI-powered learning tools.
+          A competitive coding platform with real-time judging, coding contests, leaderboard rankings, and AI-powered learning tools.
         </p>
 
         <div className="oj-hero-cta-row">
@@ -114,7 +113,7 @@ function Hero() {
       </div>
 
       <div className="oj-hero-footer-tag">
-        Cloud-Native · Real-Time Judging · AI-Assisted Learning
+        Instant Verdicts · Live Contests · AI-Powered Hints
       </div>
     </section>
   );

@@ -13,6 +13,18 @@
   margin-top: 16px;
 }
 
+.problem-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.problem-statement-col {
+  min-width: 0;
+}
+
 .problem-meta {
   display: flex;
   gap: 12px;
@@ -71,10 +83,21 @@
 }
 
 .editor-section {
-  margin-top: 40px;
-  scroll-margin-top: 24px;
+  min-width: 0;
+  position: sticky;
+  top: 24px;
 }
 
 .editor-section h3 {
   margin-bottom: 16px;
+}
+
+@media (max-width: 980px) {
+  .problem-detail-layout {
+    grid-template-columns: 1fr;
+  }
+  .editor-section {
+    position: static;
+    margin-top: 24px;
+  }
 }

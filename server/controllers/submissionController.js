@@ -6,13 +6,14 @@ const { exec } = require('child_process');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
+const redis = require('../config/redis');
+const { getChannel } = require('../config/rabbitmq');
 
 const tempDir = path.join(__dirname, '../temp');
 if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
 
-// Language normalize karo — "C++" → "cpp", "Python" → "python"
 const langMap = {
     'c++': 'cpp', 'cpp': 'cpp',
     'c': 'c',
@@ -47,8 +48,8 @@ const executeCode = (language, code, input, timeLimit) => {
                 run: `/code/solution`
             },
             'java': {
-                compile: null,              
-                run: `java /code/${fileName}`  
+                compile: null,
+                run: `java /code/${fileName}`
             }
         };
 
@@ -58,35 +59,25 @@ const executeCode = (language, code, input, timeLimit) => {
             return resolve({ verdict: 'CE', output: 'Unsupported language' });
         }
 
-        // input file banao
         const inputFileName = `input_${fileId}.txt`;
         const inputFilePath = path.join(tempDir, inputFileName);
         fs.writeFileSync(inputFilePath, input);
-
 
         const dockerFilePath = filePath.replace(/\\/g, '/').replace(/^([A-Z]):/, (_, drive) => `/${drive.toLowerCase()}`);
         const dockerInputPath = inputFilePath.replace(/\\/g, '/').replace(/^([A-Z]):/, (_, drive) => `/${drive.toLowerCase()}`);
 
         const dockerCmd = cmd.compile
             ? `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "${cmd.compile} && timeout ${timeLimit} ${cmd.run} < /code/input.txt"`
-            : `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "timeout ${timeLimit} ${cmd.run} < /code/input.txt"`;      
-        console.log('DOCKER CMD:', dockerCmd);
+            : `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "timeout ${timeLimit} ${cmd.run} < /code/input.txt"`;
 
         const startedAt = Date.now();
 
         exec(dockerCmd, { timeout: (timeLimit + 2) * 1000 }, (error, stdout, stderr) => {
             const executionTime = Date.now() - startedAt;
-            // temp file delete karo — hamesha
-          try { fs.unlinkSync(filePath); } catch (e) {}
+            try { fs.unlinkSync(filePath); } catch (e) {}
             try { fs.unlinkSync(inputFilePath); } catch (e) {}
-            console.log('STDOUT:', stdout);
-            console.log('STDERR:', stderr);
-            console.log('ERROR:', error?.message);
 
             if (error) {
-                // error.killed = Node's own exec() timeout fired.
-                // error.code === 124 = the shell's `timeout <n>` command fired first (standard POSIX convention).
-                // Both mean the same thing: the program ran past the time limit.
                 if (error.killed || error.code === 124) {
                     return resolve({ verdict: 'TLE', output: '', executionTime });
                 }
@@ -111,47 +102,39 @@ const submitCode = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Language normalize karo
+        // 2. Cooldown check — Redis
+        const cooldownKey = `cooldown:${userId}`;
+        const onCooldown = await redis.get(cooldownKey);
+        if (onCooldown) {
+            const ttl = await redis.ttl(cooldownKey);
+            return res.status(429).json({ 
+                message: `Please wait ${ttl} seconds before submitting again.` 
+            });
+        }
+
+        // 3. Language normalize
         const normalizedLanguage = langMap[language.toLowerCase()];
         if (!normalizedLanguage) {
             return res.status(400).json({ message: 'Unsupported language' });
         }
 
-// 2. Question fetch karo
+        // 4. Question fetch
         const question = await Question.findById(questionId); 
         if (!question) {
             return res.status(404).json({ message: 'Question not found' });
         }
 
-        // 2.5 Cooldown check — same user ka last submission 30 sec se purana hona chahiye
-        const COOLDOWN_SECONDS = 30;
-        const lastSubmission = await Submission.findOne({ userId })
-            .sort({ createdAt: -1 });
-
-        if (lastSubmission) {
-            const secondsSinceLast = (Date.now() - lastSubmission.createdAt.getTime()) / 1000;
-            if (secondsSinceLast < COOLDOWN_SECONDS) {
-                const waitTime = Math.ceil(COOLDOWN_SECONDS - secondsSinceLast);
-                return res.status(429).json({
-                    message: `Please wait ${waitTime} more second(s) before submitting again`
-                });
-            }
-        }
-
-        // 3. Test cases fetch karo — check BEFORE saving the submission so we
-        //    never leave a permanently PENDING record if none exist
+        // 5. Test cases fetch
         const testCases = await TestCase.find({ 
             questionId: questionId,
             hidden: true
         });
 
-        console.log('TEST CASES FOUND:', testCases.length);
-
         if (testCases.length === 0) {
             return res.status(404).json({ message: 'No test cases found' });
         }
 
-        // 4. Submission banao — PENDING
+        // 6. Submission save — PENDING
         const submission = new Submission({
             userId,
             questionId,
@@ -162,64 +145,42 @@ const submitCode = async (req, res) => {
         });
         await submission.save();
 
-        console.log('STARTING EXECUTION...');
+        // 7. Cooldown set karo
+        await redis.set(cooldownKey, 1, 'EX', 30);
+        
 
-        // 5. Har test case pe execute karo
-        let finalVerdict = 'AC';
-        let totalTime = 0;
+        // 8. Queue mein daalo
 
-        for (const testCase of testCases) {
-            console.log('EXECUTING TEST CASE:', testCase.input);
-
-            const result = await executeCode(
-                normalizedLanguage,  // normalized language pass karo
+        console.log({
+            submissionId: submission._id,
+            userId: userId.toString()
+        });
+        const channel = getChannel();
+        if (channel) {
+            const message = JSON.stringify({
+                submissionId: submission._id,
+                userId: userId.toString(),
+                questionId,
+                language: normalizedLanguage,
                 code,
-                testCase.input,
-                question.timeLimit
-            );
-
-            totalTime += result.executionTime || 0;
-
-            if (result.verdict === 'CE') {
-                finalVerdict = 'CE';
-                break;
-            }
-
-            if (result.verdict !== 'OK') {
-                finalVerdict = result.verdict;
-                break;
-            }
-
-            if (result.output.trim() !== testCase.output.trim()) {
-                finalVerdict = 'WA';
-                break;
-            }
+                timeLimit: question.timeLimit,
+                testCases: testCases.map(tc => ({
+                    input: tc.input,
+                    output: tc.output
+                }))
+            });
+            channel.sendToQueue('submissions', Buffer.from(message), {
+                persistent: true
+            });
+            console.log('Submission queued:', submission._id);
         }
+        console.log("Submission queued");
 
-        // 6. Verdict save karo
-        submission.verdict = finalVerdict;
-        submission.executionTime = totalTime;
-        await submission.save();
-
-        // AC hai toh user update karo
-        if (finalVerdict === 'AC') {
-            await User.findByIdAndUpdate(userId, {
-                $inc: { questionsSolved: 1, ranking: 10 },
-                $addToSet: { solvedQuestions: questionId }
-            });
-            await Question.findByIdAndUpdate(questionId, {
-                $inc: { totalSubmissions: 1, acceptedSubmissions: 1 }
-            });
-        } else {
-            await Question.findByIdAndUpdate(questionId, {
-                $inc: { totalSubmissions: 1 }
-            });
-        }
-
+        // 9. Turant response
         res.status(200).json({ 
-            message: 'Submission evaluated', 
-            verdict: finalVerdict,
-            submissionId: submission._id
+            message: 'Submission received — processing',
+            submissionId: submission._id,
+            verdict: 'PENDING'
         });
 
     } catch (error) {
@@ -234,9 +195,8 @@ const getSubmissionById = async (req, res) => {
         if (!submission) {
             return res.status(404).json({ message: 'Submission not found' });
         }
-        // Only the submission's owner (or an admin) may view it
         if (submission.userId.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied. You can only view your own submissions.' });
+            return res.status(403).json({ message: 'Access denied.' });
         }
         res.status(200).json({ submission });
     } catch (error) {
@@ -249,9 +209,8 @@ const getSubmissionById = async (req, res) => {
 
 const getUserSubmissions = async (req, res) => {
     try {
-        // Only the user themself (or an admin) may list this history
         if (req.params.userId !== req.user._id.toString() && req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied. You can only view your own submissions.' });
+            return res.status(403).json({ message: 'Access denied.' });
         }
         const submissions = await Submission.find({ 
             userId: req.params.userId 

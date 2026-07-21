@@ -61,7 +61,7 @@ function Navbar({ user, setUser }) {
     >
       <Link to="/" className="navbar-brand" onClick={closeMenu}>
         <Code2 size={22} />
-        OJ Platform
+        Codeigns
       </Link>
 
       <button

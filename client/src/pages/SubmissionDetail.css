@@ -71,3 +71,8 @@
   margin-bottom: 16px;
 }
 
+.badge-CE { background-color: #e74c3c; }   /* red */
+.badge-WA { background-color: #f39c12; }  /* orange */
+.badge-TLE { background-color: #3498db; } /* blue */
+.badge-RE { background-color: #9b59b6; }  /* purple */
+.badge-AC { background-color: #2ecc71; }  /* green */

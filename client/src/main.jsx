@@ -4,10 +4,13 @@ import './index.css'
 import App from './App.jsx'
 import './styles/theme.css';
 import { ThemeProvider } from './context/ThemeContext.jsx';
+import { NavbarVisibilityProvider } from './context/NavbarVisibilityContext.jsx';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
-      <App />
+      <NavbarVisibilityProvider>
+        <App />
+      </NavbarVisibilityProvider>
     </ThemeProvider>
   </StrictMode>,
 )
