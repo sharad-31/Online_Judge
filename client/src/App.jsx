@@ -8,7 +8,8 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import SubmissionDetail from './pages/SubmissionDetail';
 import Profile from './pages/Profile';
-
+import AdminQuestions from './pages/admin/AdminQuestions'
+import QuestionForm from './pages/admin/QuestionForm'
 import Leaderboard from './pages/Leaderboard';
 import SubmissionHistory from './pages/SubmissionHistory';
 import Navbar from './Components/Navbar';
@@ -41,6 +42,16 @@ function AppRoutes({ user, setUser }) {
           } />
           <Route path="/profile" element={
               user ? <Profile /> : <Navigate to="/login" state={{ from: window.location.pathname }} />
+          } />
+      
+          <Route path="/admin/questions" element={
+            user?.role === 'admin' ? <AdminQuestions /> : <Navigate to="/" />
+          } />
+          <Route path="/admin/questions/new" element={
+            user?.role === 'admin' ? <QuestionForm /> : <Navigate to="/" />
+          } />
+          <Route path="/admin/questions/:id" element={
+            user?.role === 'admin' ? <QuestionForm /> : <Navigate to="/" />
           } />
         </Routes>
       </div>

@@ -25,12 +25,19 @@ function CodeEditorSection({ questionId }) {
   const [result, setResult] = useState(null);
   const startTimeRef = useRef(Date.now());
   const socketRef = useRef(null);
+  const submittingRef = useRef(false);
+  const processingToastIdRef = useRef(null);
   const { showNavbar } = useNavbarVisibility();
+
+  useEffect(() => {
+    submittingRef.current = submitting;
+  }, [submitting]);
 
   // Socket setup
   useEffect(() => {
-    // Connect karo
-    socketRef.current = io('http://localhost:5000');
+    // Connect karo — env se URL lo (localhost sirf dev fallback ke liye)
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    socketRef.current = io(socketUrl);
 
     // Room join karo
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -43,7 +50,8 @@ function CodeEditorSection({ questionId }) {
     // Verdict listen karo
     socketRef.current.on('verdict', (data) => {
       console.log('Verdict received via WebSocket:', data);
-      setResult({ verdict: data.verdict, _id: data.submissionId });
+      toast.dismiss(processingToastIdRef.current);
+      setResult({ verdict: data.verdict, _id: data.submissionId, errorOutput: data.errorOutput });
       announceVerdict(data.verdict);
       setSubmitting(false);
       showNavbar();
@@ -78,11 +86,55 @@ function CodeEditorSection({ questionId }) {
       case 'RE':
         toast.error('Runtime Error ⚡');
         break;
+      case 'SYSTEM_ERROR':
+        toast.error('Something went wrong on our end. Please try again.');
+        break;
       default:
         toast.error(`Verdict: ${verdict}`);
     }
   };
 
+
+  // Safety net: socket 'verdict' event mil jaaye toh ye khud stop ho jayega
+  // (submitting/result already set). Agar socket event miss ho jaye,
+  // ye 2 sec interval pe DB se poll karke UI ko stuck hone se bachata hai.
+  const pollForVerdict = (submissionId) => {
+    let attempts = 0;
+    const maxAttempts = 15; // ~30 sec ceiling
+
+    const intervalId = setInterval(async () => {
+      attempts += 1;
+
+      if (!submittingRef.current) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(intervalId);
+        toast.dismiss(processingToastIdRef.current);
+        setSubmitting(false);
+        toast.error('Taking longer than expected. Refresh to check your submission status.');
+        return;
+      }
+
+      try {
+        const res = await axiosInstance.get(`/submissions/${submissionId}`);
+        const verdict = res.data?.submission?.verdict;
+
+        if (verdict && verdict !== 'PENDING') {
+          toast.dismiss(processingToastIdRef.current);
+          setResult({ verdict, _id: submissionId, errorOutput: res.data?.submission?.errorOutput });
+          announceVerdict(verdict);
+          setSubmitting(false);
+          showNavbar();
+          clearInterval(intervalId);
+        }
+      } catch (err) {
+        // silent — socket ya agla poll attempt handle kar lega
+      }
+    }, 2000);
+  };
 
   const handleSubmit = async () => {
     if (!localStorage.getItem('token')) {
@@ -94,20 +146,23 @@ function CodeEditorSection({ questionId }) {
     setSubmitting(true);
     setResult(null);
     const toastId = toast.loading('Running your code...');
+    processingToastIdRef.current = toastId;
 
     const codingTime = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000));
 
     try {
-      await axiosInstance.post('/submissions', {
+      const res = await axiosInstance.post('/submissions', {
         questionId,
         language,
         code,
         codingTime
       });
 
-      toast.dismiss(toastId);
-      toast.loading('Processing... ⏳');
-      // setSubmitting(false) nahi karenge — socket verdict pe karega
+      toast.loading('Processing... ⏳', { id: toastId });
+      // setSubmitting(false) nahi karenge — socket verdict pe karega,
+      // par agar socket event kisi wajah se miss ho jaye (network blip,
+      // redis reconnect, etc), poll fallback safety net ka kaam karega
+      pollForVerdict(res.data.submissionId);
 
     } catch (err) {
       toast.dismiss(toastId);
@@ -175,6 +230,9 @@ function CodeEditorSection({ questionId }) {
           <div className="result-header">
             <span className={`badge badge-${result.verdict}`}>{result.verdict}</span>
           </div>
+          {result.errorOutput && (
+            <pre className="result-message">{result.errorOutput}</pre>
+          )}
         </div>
       )}
     </div>

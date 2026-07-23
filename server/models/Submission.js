@@ -26,6 +26,10 @@ const submissionSchema = new mongoose.Schema({
         required: true,
         default: 'PENDING'
     },
+    errorOutput:{
+        type: String,
+        default: ''
+    },
     executionTime:{
         type: Number,
         default: 0

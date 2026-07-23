@@ -34,9 +34,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// io globally available karo — worker mein use hoga
-app.set('io', io);
-
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 

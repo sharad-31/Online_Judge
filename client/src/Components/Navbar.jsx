@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
-import { Code2, Trophy, ListChecks, LogOut, LogIn, Menu, X, Sun, Moon } from 'lucide-react';
+
 import { useTheme } from '../context/ThemeContext.jsx';
 import './Navbar.css';
-
+import { Code2, Trophy, ListChecks, LogOut, LogIn, Menu, X, Sun, Moon, Settings } from 'lucide-react';
 const navLinkClass = ({ isActive }) => (isActive ? 'nav-active' : '');
 
 function Navbar({ user, setUser }) {
@@ -85,6 +85,12 @@ function Navbar({ user, setUser }) {
         {token && (
           <NavLink to="/submissions" className={navLinkClass} onClick={closeMenu}>
             <Code2 size={16} /> My Submissions
+          </NavLink>
+        )}
+
+        {token && user?.role === 'admin' && (
+          <NavLink to="/admin/questions" className={navLinkClass} onClick={closeMenu}>
+            <Settings size={16} /> Manage Problem 
           </NavLink>
         )}
 

@@ -242,7 +242,7 @@ code {
 }
 
 .badge-AC { background: rgba(34,197,94,0.15); color: var(--success); }
-.badge-WA, .badge-RE, .badge-CE { background: rgba(239,68,68,0.15); color: var(--danger); }
+.badge-WA, .badge-RE, .badge-CE, .badge-SYSTEM_ERROR { background: rgba(239,68,68,0.15); color: var(--danger); }
 .badge-TLE, .badge-MLE, .badge-PENDING { background: rgba(234,179,8,0.15); color: var(--warning); }
 
 .badge-PENDING { animation: pulse 1.4s infinite; }

@@ -34,22 +34,58 @@ const executeCode = (language, code, input, timeLimit) => {
         
         fs.writeFileSync(filePath, code);
 
+        // Java ke public class ka naam file ke naam se exactly match hona
+        // zaroori hai javac ke liye. Purana single-file launcher mode
+        // (`java file.java`) is baat ko ignore kar deta tha — koi bhi
+        // class name chalta tha. Ab explicit javac step use kar rahe hain
+        // (taaki compile time TLE window se bahar rahe), isliye code se
+        // hi actual class name nikalte hain — hardcoded "Main" farz nahi
+        // karte, warna student ne "public class Solution" likha ho toh
+        // wo galat CE ban jayega, sirf naming ki wajah se.
+        const extractJavaClassName = (src) => {
+            const publicMatch = src.match(/public\s+(?:final\s+|abstract\s+)?class\s+(\w+)/);
+            if (publicMatch) return publicMatch[1];
+            const anyMatch = src.match(/(?:^|\s)class\s+(\w+)/);
+            if (anyMatch) return anyMatch[1];
+            return 'Main'; // koi class hi na mile toh safe fallback
+        };
+        const javaClassName = language === 'java' ? extractJavaClassName(code) : null;
+
+        // Host pe file ka naam random hi rehta hai (uuid collision avoid
+        // karne ke liye) — sirf docker container ke andar student ke
+        // actual class name se mount karte hain, jisse javac ko sahi
+        // filename mile.
+        const containerFileName = language === 'java' ? `${javaClassName}.java` : fileName;
+
+        // Interpreter/JVM startup apne aap mein overhead hai jo candidate
+        // ke algorithm ki galti nahi hai — isliye un languages ko thoda
+        // extra time dete hain taaki genuine TLE aur startup-overhead ki
+        // wajah se aaya fake TLE mein farq rahe. Compiled C/C++ binaries
+        // ko iski zaroorat nahi.
+        const timeMultiplier = { java: 2, python: 1.5, cpp: 1, c: 1 };
+        const effectiveTimeLimit = Math.ceil(timeLimit * (timeMultiplier[language] || 1));
+
         const commands = {
             'cpp': {
-                compile: `g++ -o /code/solution /code/${fileName}`,
+                compile: `g++ -o /code/solution /code/${containerFileName}`,
                 run: `/code/solution`
             },
             'python': {
                 compile: null,
-                run: `python3 /code/${fileName}`
+                run: `python3 /code/${containerFileName}`
             },
             'c': {
-                compile: `gcc -o /code/solution /code/${fileName}`,
+                compile: `gcc -o /code/solution /code/${containerFileName}`,
                 run: `/code/solution`
             },
             'java': {
-                compile: null,
-                run: `java /code/${fileName}`
+                // Pehle compile nahi ho raha tha — "java Main.java" single-
+                // file launcher mode compile + run dono ek saath karta hai,
+                // aur dono hi tight `timeout` window ke andar the. Ab C/C++
+                // jaisa hi explicit compile step hai jo timeout ke bahar
+                // chalta hai, sirf actual run wale part pe time limit lagta hai.
+                compile: `javac /code/${containerFileName}`,
+                run: `java -cp /code ${javaClassName}`
             }
         };
 
@@ -67,12 +103,12 @@ const executeCode = (language, code, input, timeLimit) => {
         const dockerInputPath = inputFilePath.replace(/\\/g, '/').replace(/^([A-Z]):/, (_, drive) => `/${drive.toLowerCase()}`);
 
         const dockerCmd = cmd.compile
-            ? `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "${cmd.compile} && timeout ${timeLimit} ${cmd.run} < /code/input.txt"`
-            : `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${fileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "timeout ${timeLimit} ${cmd.run} < /code/input.txt"`;
+            ? `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${containerFileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "${cmd.compile} && timeout ${effectiveTimeLimit} ${cmd.run} < /code/input.txt"`
+            : `docker run --rm --network none --memory 256m --cpus 1 -v "${dockerFilePath}:/code/${containerFileName}" -v "${dockerInputPath}:/code/input.txt" oj-judge sh -c "timeout ${effectiveTimeLimit} ${cmd.run} < /code/input.txt"`;
 
         const startedAt = Date.now();
 
-        exec(dockerCmd, { timeout: (timeLimit + 2) * 1000 }, (error, stdout, stderr) => {
+        exec(dockerCmd, { timeout: (effectiveTimeLimit + 2) * 1000 }, (error, stdout, stderr) => {
             const executionTime = Date.now() - startedAt;
             try { fs.unlinkSync(filePath); } catch (e) {}
             try { fs.unlinkSync(inputFilePath); } catch (e) {}
